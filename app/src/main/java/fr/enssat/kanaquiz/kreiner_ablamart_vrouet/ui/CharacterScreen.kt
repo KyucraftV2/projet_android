@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -33,6 +34,7 @@ import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.Kana
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.KanaType
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.Kanji
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.stripReadingMarkers
+import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.tts.SpeechStatus
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.ui.theme.KanaQuizTheme
 
 /**
@@ -43,6 +45,8 @@ import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.ui.theme.KanaQuizTheme
  * reste ainsi affichable dans les aperçus d'Android Studio et ne contient
  * aucune logique.
  *
+ * @param speechStatus état du moteur de synthèse vocale, qui conditionne le
+ *   bouton d'écoute.
  * @param toRomaji transcrit des kana en romaji ; passé en paramètre plutôt
  *   qu'appelé directement, pour que les aperçus puissent fournir un faux.
  */
@@ -50,7 +54,9 @@ import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.ui.theme.KanaQuizTheme
 @Composable
 fun CharacterScreen(
     state: CharacterUiState,
+    speechStatus: SpeechStatus,
     onModeSelected: (StudyMode) -> Unit,
+    onSpeak: () -> Unit,
     onPrevious: () -> Unit,
     onNext: () -> Unit,
     toRomaji: (String) -> String,
@@ -96,10 +102,12 @@ fun CharacterScreen(
                             modifier = content,
                         )
                     }
-                    NavigationBar(
+                    BottomControls(
                         positionLabel = state.positionLabel,
                         hasPrevious = state.hasPrevious,
                         hasNext = state.hasNext,
+                        speechStatus = speechStatus,
+                        onSpeak = onSpeak,
                         onPrevious = onPrevious,
                         onNext = onNext,
                     )
@@ -265,32 +273,65 @@ private fun InfoRow(label: String, value: String) {
     }
 }
 
-/** Les boutons précédent / suivant, et la position dans la liste. */
+/**
+ * Le bouton d'écoute et la navigation, ancrés en bas de l'écran.
+ *
+ * Ils restent visibles même quand la fiche d'un kanji est longue et défile.
+ */
 @Composable
-private fun NavigationBar(
+private fun BottomControls(
     positionLabel: String,
     hasPrevious: Boolean,
     hasNext: Boolean,
+    speechStatus: SpeechStatus,
+    onSpeak: () -> Unit,
     onPrevious: () -> Unit,
     onNext: () -> Unit,
 ) {
     Surface(tonalElevation = 3.dp) {
-        Row(
+        Column(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            OutlinedButton(onClick = onPrevious, enabled = hasPrevious) {
-                Text("‹ Précédent")
+            Button(
+                onClick = onSpeak,
+                enabled = speechStatus is SpeechStatus.Ready,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Écouter la prononciation")
             }
-            Text(
-                text = positionLabel,
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.weight(1f),
-            )
-            OutlinedButton(onClick = onNext, enabled = hasNext) {
-                Text("Suivant ›")
+
+            // On explique pourquoi le bouton est grisé plutôt que de laisser
+            // l'utilisateur appuyer dans le vide.
+            if (speechStatus is SpeechStatus.Unavailable) {
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    text = speechStatus.reason,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                )
+            }
+
+            Spacer(Modifier.height(10.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                OutlinedButton(onClick = onPrevious, enabled = hasPrevious) {
+                    Text("‹ Précédent")
+                }
+                Text(
+                    text = positionLabel,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedButton(onClick = onNext, enabled = hasNext) {
+                    Text("Suivant ›")
+                }
             }
         }
     }
@@ -333,7 +374,9 @@ private fun CharacterScreenKanaPreview() {
                 index = 0,
                 isLoading = false,
             ),
+            speechStatus = SpeechStatus.Ready,
             onModeSelected = {},
+            onSpeak = {},
             onPrevious = {},
             onNext = {},
             toRomaji = apercuRomaji,
@@ -352,7 +395,9 @@ private fun CharacterScreenKanjiPreview() {
                 index = 0,
                 isLoading = false,
             ),
+            speechStatus = SpeechStatus.Ready,
             onModeSelected = {},
+            onSpeak = {},
             onPrevious = {},
             onNext = {},
             toRomaji = apercuRomaji,
@@ -366,7 +411,32 @@ private fun CharacterScreenLoadingPreview() {
     KanaQuizTheme {
         CharacterScreen(
             state = CharacterUiState(isLoading = true),
+            speechStatus = SpeechStatus.Ready,
             onModeSelected = {},
+            onSpeak = {},
+            onPrevious = {},
+            onNext = {},
+            toRomaji = apercuRomaji,
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Synthèse vocale indisponible")
+@Composable
+private fun CharacterScreenNoSpeechPreview() {
+    KanaQuizTheme {
+        CharacterScreen(
+            state = CharacterUiState(
+                mode = StudyMode.HIRAGANA,
+                characters = listOf(apercuKana),
+                index = 0,
+                isLoading = false,
+            ),
+            speechStatus = SpeechStatus.Unavailable(
+                "Les données vocales japonaises ne sont pas installées."
+            ),
+            onModeSelected = {},
+            onSpeak = {},
             onPrevious = {},
             onNext = {},
             toRomaji = apercuRomaji,
