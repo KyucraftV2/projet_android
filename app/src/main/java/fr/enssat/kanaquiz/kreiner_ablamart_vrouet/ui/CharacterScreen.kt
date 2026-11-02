@@ -21,8 +21,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -62,9 +67,24 @@ fun CharacterScreen(
     toRomaji: (String) -> String,
     modifier: Modifier = Modifier,
 ) {
+    // État purement local à l'écran : l'ouverture des crédits ne concerne ni
+    // le ViewModel ni les données.
+    var showAbout by remember { mutableStateOf(false) }
+
+    if (showAbout) {
+        AboutDialog(onDismiss = { showAbout = false })
+    }
+
     Scaffold(
         modifier = modifier,
-        topBar = { TopAppBar(title = { Text("KanaQuiz") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text("KanaQuiz") },
+                actions = {
+                    TextButton(onClick = { showAbout = true }) { Text("À propos") }
+                },
+            )
+        },
     ) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
 

@@ -161,6 +161,7 @@ class JapaneseDataParserTest {
         assertEquals("ひと", stripReadingMarkers("ひと.つ"))
         assertEquals("ひと", stripReadingMarkers("ひと-"))
         assertEquals("ひと", stripReadingMarkers("!ひと"))
+        assertEquals("ひと", stripReadingMarkers("^ひと"))
         assertEquals("あた", stripReadingMarkers("あた.り"))
         assertEquals("いち", stripReadingMarkers("いち"))
     }

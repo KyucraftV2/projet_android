@@ -29,7 +29,12 @@ sealed interface JapaneseCharacter {
  * - `ひと.つ` : le point sépare la lecture du kanji de l'okurigana qui le suit,
  *   seule la partie avant le point se prononce pour le caractère seul ;
  * - `ひと-` : le tiret marque un préfixe ou un suffixe ;
- * - `!ひと` : le point d'exclamation est un marqueur WaniKani.
+ * - `!ひと` / `^ひと` : marqueurs WaniKani signalant une réponse non acceptée
+ *   ou non principale, documentés par le jeu de données.
  */
 fun stripReadingMarkers(reading: String): String =
-    reading.substringBefore('.').replace("-", "").replace("!", "").trim()
+    reading.substringBefore('.')
+        .replace("-", "")
+        .replace("!", "")
+        .replace("^", "")
+        .trim()
