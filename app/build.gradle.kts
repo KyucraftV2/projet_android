@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -33,6 +34,14 @@ android {
     buildFeatures {
         compose = true
     }
+
+    // Rend les JSON de res/raw accessibles au classpath des tests unitaires,
+    // pour ne pas avoir a dupliquer kanji_jouyou.json (1 Mo) dans src/test/resources.
+    sourceSets {
+        getByName("test") {
+            resources.srcDir("src/main/res/raw")
+        }
+    }
 }
 
 dependencies {
@@ -44,7 +53,10 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.serialization.json)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
