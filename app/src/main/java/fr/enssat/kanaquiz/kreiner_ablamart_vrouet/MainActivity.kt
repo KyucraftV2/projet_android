@@ -4,44 +4,33 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.ui.CharacterScreen
+import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.ui.CharacterViewModel
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.ui.theme.KanaQuizTheme
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             KanaQuizTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                val viewModel: CharacterViewModel = viewModel(
+                    factory = CharacterViewModel.factory(applicationContext),
+                )
+                val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+                CharacterScreen(
+                    state = state,
+                    onModeSelected = viewModel::selectMode,
+                    onPrevious = viewModel::showPrevious,
+                    onNext = viewModel::showNext,
+                    toRomaji = viewModel::toRomaji,
+                )
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    KanaQuizTheme {
-        Greeting("Android")
     }
 }

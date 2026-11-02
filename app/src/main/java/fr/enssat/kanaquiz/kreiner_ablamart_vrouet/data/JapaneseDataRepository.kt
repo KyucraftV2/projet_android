@@ -18,6 +18,18 @@ data class JapaneseData(
 )
 
 /**
+ * Source des données d'apprentissage.
+ *
+ * L'interface existe pour que le `ViewModel` puisse être testé avec un faux
+ * jeu de données, sans `Context` Android ni émulateur.
+ */
+interface JapaneseDataSource {
+
+    /** Renvoie les données, en les chargeant si nécessaire. */
+    suspend fun load(): JapaneseData
+}
+
+/**
  * Charge les données depuis les ressources `res/raw` de l'application.
  *
  * Les fichiers sont embarqués plutôt que téléchargés : l'application
@@ -27,7 +39,7 @@ data class JapaneseData(
  * le million d'octets de `kanji_jouyou.json` prend trop de temps pour le faire
  * sur le thread principal, cela gèlerait l'affichage.
  */
-class JapaneseDataRepository(private val context: Context) {
+class JapaneseDataRepository(private val context: Context) : JapaneseDataSource {
 
     private val mutex = Mutex()
     private var cached: JapaneseData? = null
@@ -38,7 +50,7 @@ class JapaneseDataRepository(private val context: Context) {
      * Le mutex évite que deux appels concurrents (par exemple deux écrans qui
      * s'ouvrent en même temps) ne fassent le travail deux fois.
      */
-    suspend fun load(): JapaneseData = mutex.withLock {
+    override suspend fun load(): JapaneseData = mutex.withLock {
         cached ?: withContext(Dispatchers.IO) {
             val kana = JapaneseDataParser.parseKana(readRawText(R.raw.kana_data))
             val kanji = JapaneseDataParser.parseKanji(readRawText(R.raw.kanji_jouyou))
