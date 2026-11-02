@@ -48,8 +48,8 @@ class JapaneseDataParserTest {
         assertEquals("One", ichi.primaryMeaning)
         assertEquals(listOf("いち", "いつ"), ichi.readingsOn)
         assertTrue("ひと-" in ichi.readingsKun)
-        // La lecture kun'yomi est privilégiée, et le marqueur "-" est retiré.
-        assertEquals("ひと", ichi.primaryReading)
+        // La lecture on'yomi est privilégiée pour la prononciation.
+        assertEquals("いち", ichi.primaryReading)
     }
 
     @Test
@@ -167,10 +167,20 @@ class JapaneseDataParserTest {
     }
 
     @Test
-    fun `le texte vocalise d un kanji est une lecture en kana`() {
+    fun `le texte vocalise d un kanji est sa lecture on'yomi`() {
         val ichi = kanji.first { it.character == "一" }
 
-        assertEquals("ひと", ichi.speechText)
+        assertEquals("いち", ichi.speechText)
         assertNotNull(ichi.primaryReading)
+    }
+
+    @Test
+    fun `un kokuji sans lecture on se rabat sur sa lecture kun`() {
+        // 峠 (col de montagne) est un caractère créé au Japon : il n'a aucune
+        // lecture d'origine chinoise, le repli doit donc fonctionner.
+        val touge = kanji.first { it.character == "峠" }
+
+        assertEquals(emptyList<String>(), touge.readingsOn)
+        assertEquals("とうげ", touge.speechText)
     }
 }

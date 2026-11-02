@@ -31,11 +31,15 @@ data class Kanji(
     /**
      * La lecture retenue pour la prononciation, en hiragana et sans marqueur.
      *
-     * On privilégie une lecture *kun'yomi* : c'est celle qu'emploie le kanji
-     * utilisé seul, ce qui correspond à ce que l'on affiche à l'écran.
+     * On privilégie une lecture *on'yomi*, celle qui sert dans les mots
+     * composés, donc la plus utile à mémoriser avec le caractère.
+     *
+     * Le repli sur une lecture *kun'yomi* n'est pas théorique : les six
+     * *kokuji* du jeu jōyō (込, 枠, 畑, 栃, 峠, 匂), créés au Japon, n'ont aucune
+     * lecture d'origine chinoise.
      */
     val primaryReading: String? =
-        (readingsKun + readingsOn)
+        (readingsOn + readingsKun)
             .asSequence()
             .map(::stripReadingMarkers)
             .firstOrNull { it.isNotEmpty() }
