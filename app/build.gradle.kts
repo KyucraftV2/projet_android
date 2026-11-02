@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.kanjitp1"
+    namespace = "fr.enssat.kanaquiz.kreiner_ablamart_vrouet"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.example.kanjitp1"
+        applicationId = "fr.enssat.kanaquiz.kreiner_ablamart_vrouet"
         minSdk = 24
         targetSdk = 37
         versionCode = 1

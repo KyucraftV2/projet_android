@@ -1,4 +1,4 @@
-package com.example.kanjitp1.ui.theme
+package fr.enssat.kanaquiz.kreiner_ablamart_vrouet.ui.theme
 
 import android.app.Activity
 import android.os.Build
@@ -34,7 +34,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun KanjiTP1Theme(
+fun KanaQuizTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,

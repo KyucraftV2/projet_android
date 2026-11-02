@@ -1,4 +1,4 @@
-package com.example.kanjitp1.ui.theme
+package fr.enssat.kanaquiz.kreiner_ablamart_vrouet.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

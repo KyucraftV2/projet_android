@@ -1,4 +1,4 @@
-package com.example.kanjitp1
+package fr.enssat.kanaquiz.kreiner_ablamart_vrouet
 
 import org.junit.Test
 

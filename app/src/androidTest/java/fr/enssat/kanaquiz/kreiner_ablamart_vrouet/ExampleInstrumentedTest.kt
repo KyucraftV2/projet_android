@@ -1,4 +1,4 @@
-package com.example.kanjitp1
+package fr.enssat.kanaquiz.kreiner_ablamart_vrouet
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.example.kanjitp1", appContext.packageName)
+        assertEquals("fr.enssat.kanaquiz.kreiner_ablamart_vrouet", appContext.packageName)
     }
 }
