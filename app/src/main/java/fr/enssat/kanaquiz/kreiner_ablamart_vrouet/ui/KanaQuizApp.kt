@@ -34,9 +34,14 @@ fun KanaQuizApp(modifier: Modifier = Modifier) {
         modifier = modifier,
     ) {
         composable<Destination.Home> {
+            val container = LocalContext.current.appContainer
+            val viewModel: ProgressViewModel = viewModel(
+                factory = ProgressViewModel.factory(container.quizResults),
+            )
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+
             HomeScreen(
-                // Le grade réel arrivera avec la base de données des résultats.
-                grade = null,
+                grade = state.grade,
                 onLearn = { navController.navigate(Destination.Learn) },
                 onStartQuiz = { navController.navigate(Destination.QuizSetup) },
                 onOpenProgress = { navController.navigate(Destination.Progress) },
@@ -113,8 +118,17 @@ fun KanaQuizApp(modifier: Modifier = Modifier) {
         }
 
         composable<Destination.Progress> {
-            UnderConstructionScreen(
-                title = "Ma progression",
+            val container = LocalContext.current.appContainer
+            val viewModel: ProgressViewModel = viewModel(
+                factory = ProgressViewModel.factory(container.quizResults),
+            )
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+            ProgressScreen(
+                state = state,
+                // Depuis l'écran vide, on enchaîne directement sur un quiz : le
+                // grade ne peut pas exister avant le premier quiz terminé.
+                onStartQuiz = { navController.navigate(Destination.QuizSetup) },
                 onBack = { navController.popBackStack() },
             )
         }

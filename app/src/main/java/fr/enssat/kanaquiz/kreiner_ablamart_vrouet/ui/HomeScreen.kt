@@ -11,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.quiz.UserGrade
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.ui.theme.KanaQuizTheme
 
 /**
@@ -43,7 +45,7 @@ import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.ui.theme.KanaQuizTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    grade: Int?,
+    grade: UserGrade?,
     onLearn: () -> Unit,
     onStartQuiz: () -> Unit,
     onOpenProgress: () -> Unit,
@@ -108,13 +110,16 @@ fun HomeScreen(
 }
 
 /**
- * Le grade de l'utilisateur, mis en avant et cliquable.
+ * Le grade de l'utilisateur, mis en avant et cliquable comme le demande le
+ * sujet.
  *
  * Tant qu'aucun quiz n'a été terminé, on affiche une invitation plutôt qu'un
- * grade à zéro : un apprenant qui démarre n'a pas « échoué ».
+ * grade à zéro : un apprenant qui démarre n'a pas « échoué ». La barre
+ * d'avancement vers le grade suivant est ce qui rend la carte motivante — un
+ * entier seul donnerait l'impression de stagner pendant plusieurs quiz.
  */
 @Composable
-private fun GradeCard(grade: Int?, onClick: () -> Unit) {
+private fun GradeCard(grade: UserGrade?, onClick: () -> Unit) {
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
@@ -129,15 +134,24 @@ private fun GradeCard(grade: Int?, onClick: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             Text(
-                text = grade?.toString() ?: "–",
+                text = grade?.level?.toString() ?: "–",
                 fontSize = 56.sp,
                 fontWeight = FontWeight.Bold,
             )
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
                 Text(
-                    text = "Votre grade",
+                    text = grade?.label ?: "Votre grade",
                     style = MaterialTheme.typography.titleMedium,
                 )
+                if (grade != null) {
+                    LinearProgressIndicator(
+                        progress = { grade.progressToNextLevel },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
                 Text(
                     text = if (grade == null) {
                         "Terminez un quiz pour obtenir votre premier grade."
@@ -181,6 +195,11 @@ private fun HomeScreenEmptyPreview() {
 @Composable
 private fun HomeScreenGradedPreview() {
     KanaQuizTheme {
-        HomeScreen(grade = 4, onLearn = {}, onStartQuiz = {}, onOpenProgress = {})
+        HomeScreen(
+            grade = UserGrade(value = 4.3, resultCount = 10),
+            onLearn = {},
+            onStartQuiz = {},
+            onOpenProgress = {},
+        )
     }
 }

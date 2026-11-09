@@ -12,8 +12,6 @@ import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.quiz.QuizSettings
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.quiz.ResultOrigin
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.quiz.TestJapaneseData
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -45,34 +43,7 @@ class QuizViewModelTest {
         override suspend fun load(): JapaneseData = failure?.let { throw it } ?: data!!
     }
 
-    /** Historique en mémoire, qui note ce qu'on lui demande d'enregistrer. */
-    private class FakeResultSource(private val failing: Boolean = false) : QuizResultSource {
-        val saved = mutableListOf<QuizResult>()
-
-        override fun observeResults(): Flow<List<QuizResult>> = flowOf(saved.toList())
-
-        override suspend fun results(): List<QuizResult> = saved.toList()
-
-        override suspend fun save(result: QuizResult): Long {
-            if (failing) throw IOException("Base indisponible")
-            saved += result
-            return saved.size.toLong()
-        }
-
-        override suspend fun saveAll(results: List<QuizResult>) {
-            results.forEach { save(it) }
-        }
-
-        override suspend fun deleteByOrigin(origin: ResultOrigin): Int {
-            val before = saved.size
-            saved.removeAll { it.origin == origin }
-            return before - saved.size
-        }
-
-        override suspend fun count(): Int = saved.size
-    }
-
-    private val results = FakeResultSource()
+    private val results = FakeQuizResultSource()
 
     private fun viewModel(
         settings: QuizSettings = QuizSettings(),
@@ -254,7 +225,7 @@ class QuizViewModelTest {
 
     @Test
     fun `un echec d enregistrement est signale sans effacer le score`() = runTest {
-        val vm = viewModel(resultSource = FakeResultSource(failing = true))
+        val vm = viewModel(resultSource = FakeQuizResultSource(failing = true))
         advanceUntilIdle()
 
         repeat(Quiz.QUESTION_COUNT) { vm.answer(vm.uiState.value.question!!.correctIndex) }
