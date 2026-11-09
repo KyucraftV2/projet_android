@@ -1,0 +1,84 @@
+package fr.enssat.kanaquiz.kreiner_ablamart_vrouet.ui
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.appContainer
+import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.tts.rememberJapaneseSpeaker
+
+/**
+ * L'application entière : la navigation entre les écrans.
+ *
+ * Le moteur de synthèse vocale est créé ici, au-dessus du graphe de
+ * navigation, et non dans chaque écran : l'apprentissage et le quiz s'en
+ * servent tous les deux, et ouvrir une nouvelle connexion au service à chaque
+ * changement d'écran serait du gaspillage. Il reste fermé automatiquement quand
+ * l'application quitte la composition.
+ */
+@Composable
+fun KanaQuizApp(modifier: Modifier = Modifier) {
+    val navController = rememberNavController()
+    val speaker = rememberJapaneseSpeaker()
+    val speechStatus by speaker.status.collectAsStateWithLifecycle()
+
+    NavHost(
+        navController = navController,
+        startDestination = Destination.Home,
+        modifier = modifier,
+    ) {
+        composable<Destination.Home> {
+            HomeScreen(
+                // Le grade réel arrivera avec la base de données des résultats.
+                grade = null,
+                onLearn = { navController.navigate(Destination.Learn) },
+                onStartQuiz = { navController.navigate(Destination.QuizSetup) },
+                onOpenProgress = { navController.navigate(Destination.Progress) },
+            )
+        }
+
+        composable<Destination.Learn> {
+            // Le ViewModel est créé à l'entrée dans l'écran : le mégaoctet de
+            // kanji n'est pas parsé tant que l'utilisateur reste sur l'accueil.
+            // La source, elle, est celle du conteneur applicatif, donc partagée.
+            val container = LocalContext.current.appContainer
+            val viewModel: CharacterViewModel = viewModel(
+                factory = CharacterViewModel.factory(container.japaneseData),
+            )
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+            CharacterScreen(
+                state = state,
+                speechStatus = speechStatus,
+                onModeSelected = viewModel::selectMode,
+                onBack = { navController.popBackStack() },
+                // On prononce le kana lui-même, ou pour un kanji sa lecture en
+                // hiragana : un idéogramme seul n'a pas de prononciation que le
+                // moteur saurait deviner.
+                onSpeak = { state.current?.let { speaker.speak(it.speechText) } },
+                onPrevious = viewModel::showPrevious,
+                onNext = viewModel::showNext,
+                toRomaji = viewModel::toRomaji,
+            )
+        }
+
+        composable<Destination.QuizSetup> {
+            UnderConstructionScreen(
+                title = "Lancer un quiz",
+                onBack = { navController.popBackStack() },
+            )
+        }
+
+        composable<Destination.Progress> {
+            UnderConstructionScreen(
+                title = "Ma progression",
+                onBack = { navController.popBackStack() },
+            )
+        }
+    }
+}

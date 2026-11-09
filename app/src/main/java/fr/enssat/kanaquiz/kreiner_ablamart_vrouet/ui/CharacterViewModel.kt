@@ -1,13 +1,11 @@
 package fr.enssat.kanaquiz.kreiner_ablamart_vrouet.ui
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.JapaneseData
-import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.JapaneseDataRepository
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.JapaneseDataSource
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.CharacterSet
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.JapaneseCharacter
@@ -134,19 +132,16 @@ class CharacterViewModel(private val dataSource: JapaneseDataSource) : ViewModel
     companion object {
 
         /**
-         * Fabrique le ViewModel avec le repository branché sur les ressources.
+         * Fabrique le ViewModel autour de la source de données partagée.
          *
-         * On garde le contexte applicatif et non celui de l'activité : le
-         * ViewModel vit plus longtemps que l'activité, retenir cette dernière
-         * provoquerait une fuite mémoire à chaque rotation.
+         * La source vient du conteneur de l'application et non d'un `Context`
+         * retenu ici : le ViewModel vit plus longtemps que l'activité, garder
+         * cette dernière provoquerait une fuite mémoire à chaque rotation, et
+         * les données restent parsées une seule fois pour tout le processus.
          */
-        fun factory(context: Context): ViewModelProvider.Factory {
-            val applicationContext = context.applicationContext
-            return viewModelFactory {
-                initializer {
-                    CharacterViewModel(JapaneseDataRepository(applicationContext))
-                }
+        fun factory(dataSource: JapaneseDataSource): ViewModelProvider.Factory =
+            viewModelFactory {
+                initializer { CharacterViewModel(dataSource) }
             }
-        }
     }
 }

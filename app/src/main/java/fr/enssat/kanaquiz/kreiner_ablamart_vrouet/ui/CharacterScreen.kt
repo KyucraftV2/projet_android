@@ -21,13 +21,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -64,28 +59,21 @@ fun CharacterScreen(
     state: CharacterUiState,
     speechStatus: SpeechStatus,
     onModeSelected: (CharacterSet) -> Unit,
+    onBack: () -> Unit,
     onSpeak: () -> Unit,
     onPrevious: () -> Unit,
     onNext: () -> Unit,
     toRomaji: (String) -> String,
     modifier: Modifier = Modifier,
 ) {
-    // État purement local à l'écran : l'ouverture des crédits ne concerne ni
-    // le ViewModel ni les données.
-    var showAbout by remember { mutableStateOf(false) }
-
-    if (showAbout) {
-        AboutDialog(onDismiss = { showAbout = false })
-    }
-
     Scaffold(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text("KanaQuiz") },
-                actions = {
-                    TextButton(onClick = { showAbout = true }) { Text("À propos") }
-                },
+                title = { Text("Apprendre les caractères") },
+                // Les crédits sont accessibles depuis l'accueil : la barre de
+                // titre d'un écran interne sert à en sortir.
+                navigationIcon = { BackButton(onBack) },
             )
         },
     ) { innerPadding ->
@@ -399,6 +387,7 @@ private fun CharacterScreenKanaPreview() {
             ),
             speechStatus = SpeechStatus.Ready,
             onModeSelected = {},
+            onBack = {},
             onSpeak = {},
             onPrevious = {},
             onNext = {},
@@ -420,6 +409,7 @@ private fun CharacterScreenKanjiPreview() {
             ),
             speechStatus = SpeechStatus.Ready,
             onModeSelected = {},
+            onBack = {},
             onSpeak = {},
             onPrevious = {},
             onNext = {},
@@ -436,6 +426,7 @@ private fun CharacterScreenLoadingPreview() {
             state = CharacterUiState(isLoading = true),
             speechStatus = SpeechStatus.Ready,
             onModeSelected = {},
+            onBack = {},
             onSpeak = {},
             onPrevious = {},
             onNext = {},
@@ -459,6 +450,7 @@ private fun CharacterScreenNoSpeechPreview() {
                 "Les données vocales japonaises ne sont pas installées."
             ),
             onModeSelected = {},
+            onBack = {},
             onSpeak = {},
             onPrevious = {},
             onNext = {},
