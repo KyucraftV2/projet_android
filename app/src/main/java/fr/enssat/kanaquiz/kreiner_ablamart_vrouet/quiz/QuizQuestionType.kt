@@ -10,18 +10,21 @@ import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.CharacterSet
  *
  * @param label le libellé affiché dans l'écran de configuration.
  * @param characterSets les jeux de caractères auxquels le type s'applique.
+ * @param consigne la question posée en français, affichée au-dessus de l'énoncé.
  * @param promptIsCharacter vrai si l'énoncé est le caractère japonais et la
  *   réponse une information (romaji, signification, lecture) ; faux dans le
  *   sens inverse. C'est ce qui décide quel côté s'affiche en gros à l'écran.
  */
 enum class QuizQuestionType(
     val label: String,
+    val consigne: String,
     val characterSets: Set<CharacterSet>,
     val promptIsCharacter: Boolean,
 ) {
     /** `か` → `ka` */
     CHARACTER_TO_ROMAJI(
         label = "Caractère → romaji",
+        consigne = "Quel est le romaji de ce caractère ?",
         characterSets = setOf(CharacterSet.HIRAGANA, CharacterSet.KATAKANA),
         promptIsCharacter = true,
     ),
@@ -29,6 +32,7 @@ enum class QuizQuestionType(
     /** `ka` → `か` */
     ROMAJI_TO_CHARACTER(
         label = "Romaji → caractère",
+        consigne = "Quel caractère se lit ainsi ?",
         characterSets = setOf(CharacterSet.HIRAGANA, CharacterSet.KATAKANA),
         promptIsCharacter = false,
     ),
@@ -36,6 +40,7 @@ enum class QuizQuestionType(
     /** `一` → `One` */
     CHARACTER_TO_MEANING(
         label = "Kanji → signification",
+        consigne = "Que signifie ce kanji ?",
         characterSets = setOf(CharacterSet.KANJI),
         promptIsCharacter = true,
     ),
@@ -43,6 +48,7 @@ enum class QuizQuestionType(
     /** `One` → `一` */
     MEANING_TO_CHARACTER(
         label = "Signification → kanji",
+        consigne = "Quel kanji a cette signification ?",
         characterSets = setOf(CharacterSet.KANJI),
         promptIsCharacter = false,
     ),
@@ -50,6 +56,7 @@ enum class QuizQuestionType(
     /** `一` → `いち` */
     CHARACTER_TO_READING(
         label = "Kanji → prononciation",
+        consigne = "Comment se prononce ce kanji ?",
         characterSets = setOf(CharacterSet.KANJI),
         promptIsCharacter = true,
     ),
@@ -57,6 +64,7 @@ enum class QuizQuestionType(
     /** `いち` → `一` */
     READING_TO_CHARACTER(
         label = "Prononciation → kanji",
+        consigne = "Quel kanji se prononce ainsi ?",
         characterSets = setOf(CharacterSet.KANJI),
         promptIsCharacter = false,
     ),

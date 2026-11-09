@@ -7,10 +7,10 @@ import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.JapaneseCharacter
  *
  * @param character le caractère sur lequel porte la question, gardé pour
  *   pouvoir le vocaliser ou l'afficher une fois la réponse donnée.
+ * @param type le sens de la question : il porte la consigne à afficher, et dira
+ *   plus tard sur quoi l'utilisateur a été interrogé dans ses résultats.
  * @param prompt le texte de l'énoncé (le caractère, ou l'information demandée
  *   dans le sens inverse).
- * @param promptIsCharacter vrai si [prompt] est le caractère japonais : l'écran
- *   l'affiche alors en très grand, un romaji ou une signification non.
  * @param hint l'aide à afficher, `null` si l'utilisateur a désactivé les aides.
  * @param promptSpeech le texte à faire prononcer pendant la question, `null` si
  *   la vocalisation est désactivée ou si elle donnerait la réponse.
@@ -19,8 +19,8 @@ import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.JapaneseCharacter
  */
 data class QuizQuestion(
     val character: JapaneseCharacter,
+    val type: QuizQuestionType,
     val prompt: String,
-    val promptIsCharacter: Boolean,
     val hint: String?,
     val promptSpeech: String?,
     val choices: List<String>,
@@ -30,8 +30,14 @@ data class QuizQuestion(
     /** Le texte de la bonne réponse. */
     val correctAnswer: String get() = choices[correctIndex]
 
+    /** La question posée en français, affichée au-dessus de l'énoncé. */
+    val consigne: String get() = type.consigne
+
+    /** Vrai si [prompt] est le caractère japonais, à afficher en très grand. */
+    val promptIsCharacter: Boolean get() = type.promptIsCharacter
+
     /** Vrai si les réponses proposées sont des caractères japonais. */
-    val answerIsCharacter: Boolean get() = !promptIsCharacter
+    val answerIsCharacter: Boolean get() = type.answerIsCharacter
 
     /** Vrai si la réponse à la position [choiceIndex] est la bonne. */
     fun isCorrect(choiceIndex: Int): Boolean = choiceIndex == correctIndex

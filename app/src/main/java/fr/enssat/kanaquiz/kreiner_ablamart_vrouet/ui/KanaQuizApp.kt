@@ -89,10 +89,21 @@ fun KanaQuizApp(modifier: Modifier = Modifier) {
         }
 
         composable<Destination.Quiz> { entry ->
-            // Les réglages sont relus depuis la route : l'écran de quiz arrive.
+            // Les réglages sont relus depuis la route, donc rejoués tels quels
+            // après une rotation ou un retour en arrière.
             val settings = entry.toRoute<Destination.Quiz>().toSettings()
-            UnderConstructionScreen(
-                title = "${settings.characterSet.label} · ${settings.questionType.label}",
+            val container = LocalContext.current.appContainer
+            val viewModel: QuizViewModel = viewModel(
+                factory = QuizViewModel.factory(settings, container.japaneseData),
+            )
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+            QuizScreen(
+                state = state,
+                speechStatus = speechStatus,
+                onAnswer = viewModel::answer,
+                onSpeak = speaker::speak,
+                onRestart = viewModel::restart,
                 onBack = { navController.popBackStack() },
             )
         }

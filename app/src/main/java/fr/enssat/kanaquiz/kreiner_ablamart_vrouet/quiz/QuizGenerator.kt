@@ -172,8 +172,8 @@ class QuizGenerator(private val data: JapaneseData) {
         val choices = (wrongAnswers + subject.answer).shuffled(random)
         return QuizQuestion(
             character = subject.character,
+            type = settings.questionType,
             prompt = subject.prompt,
-            promptIsCharacter = settings.questionType.promptIsCharacter,
             hint = if (settings.hintsEnabled) hint(subject.character, settings.questionType) else null,
             promptSpeech = promptSpeech(subject.character, settings),
             choices = choices,
