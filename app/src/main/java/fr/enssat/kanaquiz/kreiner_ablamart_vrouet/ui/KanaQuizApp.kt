@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.appContainer
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.tts.rememberJapaneseSpeaker
 
@@ -68,8 +69,30 @@ fun KanaQuizApp(modifier: Modifier = Modifier) {
         }
 
         composable<Destination.QuizSetup> {
+            val container = LocalContext.current.appContainer
+            val viewModel: QuizSetupViewModel = viewModel(
+                factory = QuizSetupViewModel.factory(container.japaneseData),
+            )
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+            QuizSetupScreen(
+                state = state,
+                speechStatus = speechStatus,
+                onCharacterSetSelected = viewModel::selectCharacterSet,
+                onQuestionTypeSelected = viewModel::selectQuestionType,
+                onGradeSelected = viewModel::selectGrade,
+                onHintsEnabledChange = viewModel::setHintsEnabled,
+                onSpeechEnabledChange = viewModel::setSpeechEnabled,
+                onStart = { navController.navigate(Destination.Quiz.of(state.settings)) },
+                onBack = { navController.popBackStack() },
+            )
+        }
+
+        composable<Destination.Quiz> { entry ->
+            // Les réglages sont relus depuis la route : l'écran de quiz arrive.
+            val settings = entry.toRoute<Destination.Quiz>().toSettings()
             UnderConstructionScreen(
-                title = "Lancer un quiz",
+                title = "${settings.characterSet.label} · ${settings.questionType.label}",
                 onBack = { navController.popBackStack() },
             )
         }

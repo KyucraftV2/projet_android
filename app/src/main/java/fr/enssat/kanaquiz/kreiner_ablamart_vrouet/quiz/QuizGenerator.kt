@@ -63,6 +63,17 @@ class QuizGenerator(private val data: JapaneseData) {
         )
     }
 
+    /**
+     * Le nombre de caractères que [settings] rend interrogeables.
+     *
+     * Affiché dans l'écran de configuration : l'utilisateur voit ainsi
+     * l'étendue du vivier dans lequel son quiz sera tiré. Vaut `0` pour des
+     * paramètres incohérents, sans lever d'exception, car l'interface peut
+     * interroger n'importe quelle combinaison en cours de réglage.
+     */
+    fun poolSize(settings: QuizSettings): Int =
+        if (settings.isConsistent) candidates(settings).size else 0
+
     /** Les caractères éligibles, c'est-à-dire ceux dont on peut faire une question. */
     private fun candidates(settings: QuizSettings): List<Candidate> {
         val type = settings.questionType

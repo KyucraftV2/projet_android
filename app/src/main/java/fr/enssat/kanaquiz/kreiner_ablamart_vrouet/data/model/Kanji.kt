@@ -50,12 +50,19 @@ data class Kanji(
     override val speechText: String get() = primaryReading ?: character
 
     /** Libellé lisible du [grade], à afficher dans l'interface. */
-    val gradeLabel: String
-        get() = when (grade) {
-            null -> "Non classé"
-            in 1..6 -> "Primaire, année $grade"
-            7, 8 -> "Collège"
-            9, 10 -> "Noms propres"
-            else -> "Grade $grade"
-        }
+    val gradeLabel: String get() = gradeLabel(grade)
+}
+
+/**
+ * Libellé lisible d'un niveau scolaire d'apprentissage des kanji.
+ *
+ * Fonction libre et non méthode de [Kanji] : l'écran de configuration d'un
+ * quiz doit nommer un grade avant d'avoir choisi un kanji.
+ */
+fun gradeLabel(grade: Int?): String = when (grade) {
+    null -> "Non classé"
+    in 1..6 -> "Primaire, année $grade"
+    7, 8 -> "Collège"
+    9, 10 -> "Noms propres"
+    else -> "Grade $grade"
 }
