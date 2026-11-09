@@ -2,8 +2,12 @@ package fr.enssat.kanaquiz.kreiner_ablamart_vrouet
 
 import android.app.Application
 import android.content.Context
+import androidx.room.Room
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.JapaneseDataRepository
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.JapaneseDataSource
+import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.results.KanaQuizDatabase
+import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.results.QuizResultRepository
+import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.results.QuizResultSource
 
 /**
  * Les dépendances partagées par toute l'application.
@@ -13,7 +17,7 @@ import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.JapaneseDataSource
  * fois de l'écran d'apprentissage. Sans ce conteneur, chaque écran créerait son
  * propre dépôt et re-lirait le mégaoctet de `kanji_jouyou.json`.
  *
- * C'est aussi ici que viendra la base de données des résultats de quiz.
+ * Le conteneur porte aussi la base de données des résultats de quiz.
  */
 class AppContainer(context: Context) {
 
@@ -22,6 +26,25 @@ class AppContainer(context: Context) {
     /** La source des caractères japonais, chargée paresseusement. */
     val japaneseData: JapaneseDataSource by lazy {
         JapaneseDataRepository(applicationContext)
+    }
+
+    /**
+     * La base de données locale.
+     *
+     * Ouverte paresseusement : lancer l'application sans jouer de quiz ne doit
+     * pas coûter l'ouverture d'un fichier SQLite.
+     */
+    private val database: KanaQuizDatabase by lazy {
+        Room.databaseBuilder(
+            applicationContext,
+            KanaQuizDatabase::class.java,
+            KanaQuizDatabase.NAME,
+        ).build()
+    }
+
+    /** L'historique des quiz joués. */
+    val quizResults: QuizResultSource by lazy {
+        QuizResultRepository(database.quizResultDao())
     }
 }
 

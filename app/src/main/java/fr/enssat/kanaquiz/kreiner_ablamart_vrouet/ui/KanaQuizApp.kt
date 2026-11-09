@@ -94,7 +94,11 @@ fun KanaQuizApp(modifier: Modifier = Modifier) {
             val settings = entry.toRoute<Destination.Quiz>().toSettings()
             val container = LocalContext.current.appContainer
             val viewModel: QuizViewModel = viewModel(
-                factory = QuizViewModel.factory(settings, container.japaneseData),
+                factory = QuizViewModel.factory(
+                    settings = settings,
+                    dataSource = container.japaneseData,
+                    resultSource = container.quizResults,
+                ),
             )
             val state by viewModel.uiState.collectAsStateWithLifecycle()
 

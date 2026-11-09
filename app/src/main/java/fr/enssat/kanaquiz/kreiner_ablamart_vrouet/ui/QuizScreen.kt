@@ -123,6 +123,7 @@ fun QuizScreen(
                     if (question == null) {
                         QuizSummary(
                             session = session,
+                            saveFailed = state.saveFailed,
                             onRestart = onRestart,
                             onBack = onBack,
                             modifier = Modifier.weight(1f),
@@ -254,6 +255,7 @@ private fun AnswerButtons(question: QuizQuestion, onAnswer: (Int) -> Unit) {
 @Composable
 private fun QuizSummary(
     session: QuizSession,
+    saveFailed: Boolean,
     onRestart: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
@@ -275,6 +277,16 @@ private fun QuizSummary(
                     text = "bonnes réponses",
                     style = MaterialTheme.typography.bodyMedium,
                 )
+                if (saveFailed) {
+                    Text(
+                        text = "Ce résultat n'a pas pu être enregistré : " +
+                            "il ne comptera pas dans votre progression.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+                }
             }
         }
 
