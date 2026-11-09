@@ -4,6 +4,7 @@ import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.JapaneseData
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.JapaneseDataSource
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.RomajiConverter
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.Kana
+import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.CharacterSet
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.KanaType
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.Kanji
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -89,7 +90,7 @@ class CharacterViewModelTest {
         val state = vm.uiState.value
         assertFalse(state.isLoading)
         assertNull(state.errorMessage)
-        assertEquals(StudyMode.HIRAGANA, state.mode)
+        assertEquals(CharacterSet.HIRAGANA, state.mode)
         assertEquals("あ", state.current?.character)
         assertEquals("1 / 2", state.positionLabel)
     }
@@ -144,12 +145,12 @@ class CharacterViewModelTest {
         val vm = viewModel()
         advanceUntilIdle()
 
-        vm.selectMode(StudyMode.KATAKANA)
+        vm.selectMode(CharacterSet.KATAKANA)
 
-        assertEquals(StudyMode.KATAKANA, vm.uiState.value.mode)
+        assertEquals(CharacterSet.KATAKANA, vm.uiState.value.mode)
         assertEquals("ア", vm.uiState.value.current?.character)
 
-        vm.selectMode(StudyMode.KANJI)
+        vm.selectMode(CharacterSet.KANJI)
 
         assertEquals("一", vm.uiState.value.current?.character)
         assertEquals("1 / 1", vm.uiState.value.positionLabel)
@@ -161,8 +162,8 @@ class CharacterViewModelTest {
         advanceUntilIdle()
 
         vm.showNext() // hiragana : on est sur い
-        vm.selectMode(StudyMode.KATAKANA)
-        vm.selectMode(StudyMode.HIRAGANA)
+        vm.selectMode(CharacterSet.KATAKANA)
+        vm.selectMode(CharacterSet.HIRAGANA)
 
         assertEquals("い", vm.uiState.value.current?.character)
     }
@@ -175,9 +176,9 @@ class CharacterViewModelTest {
         // On va en position 2 en hiragana, puis sur les kanji qui n'ont qu'un
         // seul élément : l'index doit être ramené dans les bornes.
         vm.showNext()
-        vm.selectMode(StudyMode.KANJI)
-        vm.selectMode(StudyMode.HIRAGANA)
-        vm.selectMode(StudyMode.KANJI)
+        vm.selectMode(CharacterSet.KANJI)
+        vm.selectMode(CharacterSet.HIRAGANA)
+        vm.selectMode(CharacterSet.KANJI)
 
         assertEquals(0, vm.uiState.value.index)
         assertEquals("一", vm.uiState.value.current?.character)
@@ -189,7 +190,7 @@ class CharacterViewModelTest {
         advanceUntilIdle()
         vm.showNext()
 
-        vm.selectMode(StudyMode.HIRAGANA)
+        vm.selectMode(CharacterSet.HIRAGANA)
 
         assertEquals(1, vm.uiState.value.index)
     }
@@ -210,10 +211,10 @@ class CharacterViewModelTest {
         val vm = viewModel()
 
         vm.showNext()
-        vm.selectMode(StudyMode.KANJI)
+        vm.selectMode(CharacterSet.KANJI)
 
         assertEquals(0, vm.uiState.value.index)
-        assertEquals(StudyMode.HIRAGANA, vm.uiState.value.mode)
+        assertEquals(CharacterSet.HIRAGANA, vm.uiState.value.mode)
     }
 
     @Test

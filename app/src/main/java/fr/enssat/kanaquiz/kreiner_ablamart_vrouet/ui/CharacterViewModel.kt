@@ -9,20 +9,13 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.JapaneseData
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.JapaneseDataRepository
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.JapaneseDataSource
+import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.CharacterSet
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.JapaneseCharacter
-import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.KanaType
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-
-/** Le jeu de caractères que l'utilisateur est en train de réviser. */
-enum class StudyMode(val label: String) {
-    HIRAGANA("Hiragana"),
-    KATAKANA("Katakana"),
-    KANJI("Kanji"),
-}
 
 /**
  * Tout ce dont l'écran a besoin pour se dessiner.
@@ -32,7 +25,7 @@ enum class StudyMode(val label: String) {
  * la position dans la liste.
  */
 data class CharacterUiState(
-    val mode: StudyMode = StudyMode.HIRAGANA,
+    val mode: CharacterSet = CharacterSet.HIRAGANA,
     val characters: List<JapaneseCharacter> = emptyList(),
     val index: Int = 0,
     val isLoading: Boolean = true,
@@ -71,7 +64,7 @@ class CharacterViewModel(private val dataSource: JapaneseDataSource) : ViewModel
      * Sans cela, revenir aux hiragana après un détour par les kanji
      * ramènerait à `あ` et ferait perdre sa progression à l'utilisateur.
      */
-    private val savedIndices = mutableMapOf<StudyMode, Int>()
+    private val savedIndices = mutableMapOf<CharacterSet, Int>()
 
     init {
         loadData()
@@ -84,7 +77,7 @@ class CharacterViewModel(private val dataSource: JapaneseDataSource) : ViewModel
                 data = loaded
                 val state = _uiState.value
                 _uiState.value = state.copy(
-                    characters = charactersFor(state.mode, loaded),
+                    characters = loaded.charactersOf(state.mode),
                     index = 0,
                     isLoading = false,
                     errorMessage = null,
@@ -103,13 +96,13 @@ class CharacterViewModel(private val dataSource: JapaneseDataSource) : ViewModel
     }
 
     /** Passe à un autre syllabaire, en reprenant là où l'utilisateur s'était arrêté. */
-    fun selectMode(mode: StudyMode) {
+    fun selectMode(mode: CharacterSet) {
         val loaded = data ?: return
         val state = _uiState.value
         if (state.mode == mode) return
 
         savedIndices[state.mode] = state.index
-        val characters = charactersFor(mode, loaded)
+        val characters = loaded.charactersOf(mode)
         _uiState.value = state.copy(
             mode = mode,
             characters = characters,
@@ -137,13 +130,6 @@ class CharacterViewModel(private val dataSource: JapaneseDataSource) : ViewModel
      * table de correspondance soit disponible.
      */
     fun toRomaji(kana: String): String = data?.romaji?.toRomaji(kana).orEmpty()
-
-    private fun charactersFor(mode: StudyMode, data: JapaneseData): List<JapaneseCharacter> =
-        when (mode) {
-            StudyMode.HIRAGANA -> data.kana.filter { it.type == KanaType.HIRAGANA }
-            StudyMode.KATAKANA -> data.kana.filter { it.type == KanaType.KATAKANA }
-            StudyMode.KANJI -> data.kanji
-        }
 
     companion object {
 

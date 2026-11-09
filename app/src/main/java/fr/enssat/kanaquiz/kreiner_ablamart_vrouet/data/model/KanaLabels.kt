@@ -1,6 +1,4 @@
-package fr.enssat.kanaquiz.kreiner_ablamart_vrouet.ui
-
-import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.Kana
+package fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model
 
 /**
  * Rend lisibles les clés techniques du fichier `kana_data.json`.

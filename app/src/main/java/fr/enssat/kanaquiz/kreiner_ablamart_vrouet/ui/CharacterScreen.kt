@@ -36,8 +36,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.JapaneseCharacter
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.Kana
+import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.CharacterSet
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.KanaType
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.Kanji
+import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.familyLabel
+import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.groupLabel
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.stripReadingMarkers
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.tts.SpeechStatus
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.ui.theme.KanaQuizTheme
@@ -60,7 +63,7 @@ import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.ui.theme.KanaQuizTheme
 fun CharacterScreen(
     state: CharacterUiState,
     speechStatus: SpeechStatus,
-    onModeSelected: (StudyMode) -> Unit,
+    onModeSelected: (CharacterSet) -> Unit,
     onSpeak: () -> Unit,
     onPrevious: () -> Unit,
     onNext: () -> Unit,
@@ -89,7 +92,7 @@ fun CharacterScreen(
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
 
             PrimaryTabRow(selectedTabIndex = state.mode.ordinal) {
-                StudyMode.entries.forEach { mode ->
+                CharacterSet.entries.forEach { mode ->
                     Tab(
                         selected = mode == state.mode,
                         onClick = { onModeSelected(mode) },
@@ -389,7 +392,7 @@ private fun CharacterScreenKanaPreview() {
     KanaQuizTheme {
         CharacterScreen(
             state = CharacterUiState(
-                mode = StudyMode.HIRAGANA,
+                mode = CharacterSet.HIRAGANA,
                 characters = listOf(apercuKana),
                 index = 0,
                 isLoading = false,
@@ -410,7 +413,7 @@ private fun CharacterScreenKanjiPreview() {
     KanaQuizTheme {
         CharacterScreen(
             state = CharacterUiState(
-                mode = StudyMode.KANJI,
+                mode = CharacterSet.KANJI,
                 characters = listOf(apercuKanji, apercuKanji),
                 index = 0,
                 isLoading = false,
@@ -447,7 +450,7 @@ private fun CharacterScreenNoSpeechPreview() {
     KanaQuizTheme {
         CharacterScreen(
             state = CharacterUiState(
-                mode = StudyMode.HIRAGANA,
+                mode = CharacterSet.HIRAGANA,
                 characters = listOf(apercuKana),
                 index = 0,
                 isLoading = false,

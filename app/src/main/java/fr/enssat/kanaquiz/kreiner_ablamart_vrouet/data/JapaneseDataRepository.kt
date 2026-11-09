@@ -3,6 +3,8 @@ package fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data
 import android.content.Context
 import androidx.annotation.RawRes
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.R
+import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.CharacterSet
+import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.JapaneseCharacter
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.Kana
 import fr.enssat.kanaquiz.kreiner_ablamart_vrouet.data.model.Kanji
 import kotlinx.coroutines.Dispatchers
@@ -15,7 +17,18 @@ data class JapaneseData(
     val kana: List<Kana>,
     val kanji: List<Kanji>,
     val romaji: RomajiConverter,
-)
+) {
+
+    /**
+     * Les caractères du jeu [set], dans l'ordre d'apprentissage du fichier
+     * source.
+     *
+     * Centralisé ici car l'écran d'apprentissage et le générateur de quiz ont
+     * besoin exactement du même découpage.
+     */
+    fun charactersOf(set: CharacterSet): List<JapaneseCharacter> =
+        set.kanaType?.let { type -> kana.filter { it.type == type } } ?: kanji
+}
 
 /**
  * Source des données d'apprentissage.
